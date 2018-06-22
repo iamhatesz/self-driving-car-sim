@@ -192,7 +192,8 @@ public class UISystem : MonoSingleton<UISystem> {
 	    if(Input.GetKeyDown(KeyCode.Escape))
         {
             //Do Menu Here
-            SceneManager.LoadScene("MenuScene");
+            //SceneManager.LoadScene("MenuScene");
+            Application.Quit();
         }
 
         UpdateCarValues();

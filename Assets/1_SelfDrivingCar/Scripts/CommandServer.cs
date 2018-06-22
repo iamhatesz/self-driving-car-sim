@@ -5,6 +5,7 @@ using SocketIO;
 using UnityStandardAssets.Vehicles.Car;
 using System;
 using System.Security.AccessControl;
+using UnityEngine.SceneManagement;
 
 public class CommandServer : MonoBehaviour
 {
@@ -42,7 +43,9 @@ public class CommandServer : MonoBehaviour
 	{
 		_socket = GameObject.Find("SocketIO").GetComponent<SocketIOComponent>();
 		_socket.On("open", OnOpen);
-		_socket.On("manual", onManual);
+		_socket.On("manual", OnManual);
+        _socket.On("restart", OnRestart);
+        _socket.On("finish", OnFinish);
 		_socket.On("control", Control);
 		_carController = Car.GetComponent<CarController>();
 		point_path = Car.GetComponent<perfect_controller>();
@@ -56,15 +59,27 @@ public class CommandServer : MonoBehaviour
 		point_path.OpenScript ();
 		EmitTelemetry(obj);
 	}
+
 	void OnClose(SocketIOEvent obj)
 	{
 		Debug.Log("Connection Closed");
 		point_path.CloseScript ();
-
 	}
 
+    void OnRestart(SocketIOEvent obj)
+    {
+        Debug.Log("Restarting");
+        SceneManager.LoadScene("PathPlanning");
+    }
+
+    void OnFinish(SocketIOEvent obj)
+    {
+        Debug.Log("Finishing");
+        Application.Quit();
+    }
+
 	// 
-	void onManual(SocketIOEvent obj)
+	void OnManual(SocketIOEvent obj)
 	{
 		EmitTelemetry (obj);
 	}
