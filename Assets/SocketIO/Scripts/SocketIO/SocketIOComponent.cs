@@ -27,7 +27,7 @@
 
 #endregion
 
-//#define SOCKET_IO_DEBUG			// Uncomment this for debug
+// #define SOCKET_IO_DEBUG			// Uncomment this for debug
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,7 +40,10 @@ namespace SocketIO
 {
 	public class SocketIOComponent : MonoBehaviour
 	{
-		#region Public Properties
+        #region Public Properties
+
+        public string defaultHost = "localhost";
+        public int defaultPort = 4567;
 
 		public string url = "ws://127.0.0.1:4567/socket.io/?EIO=4&transport=websocket";
 		public bool autoConnect = true;
@@ -90,8 +93,14 @@ namespace SocketIO
 		#region Unity interface
 
 		public void Awake()
-		{
-			encoder = new Encoder();
+        {
+            #if SOCKET_IO_DEBUG
+            if (debugMethod == null) { debugMethod = Debug.Log; };
+            #endif
+
+            ParseCommandLineArguments();
+
+            encoder = new Encoder();
 			decoder = new Decoder();
 			parser = new Parser();
 			handlers = new Dictionary<string, List<Action<SocketIOEvent>>>();
@@ -114,9 +123,9 @@ namespace SocketIO
 
 			connected = false;
 
-			#if SOCKET_IO_DEBUG
-			if(debugMethod == null) { debugMethod = Debug.Log; };
-			#endif
+            #if SOCKET_IO_DEBUG
+            debugMethod.Invoke("Create WebSocket with URL: " + url);
+            #endif
 		}
 
 		public void Start()
@@ -164,9 +173,9 @@ namespace SocketIO
 			Close();
 		}
 
-		#endregion
+#endregion
 
-		#region Public Interface
+#region Public Interface
 		
 		public void Connect()
 		{
@@ -196,17 +205,17 @@ namespace SocketIO
 		public void Off(string ev, Action<SocketIOEvent> callback)
 		{
 			if (!handlers.ContainsKey(ev)) {
-				#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 				debugMethod.Invoke("[SocketIO] No callbacks registered for event: " + ev);
-				#endif
+#endif
 				return;
 			}
 
 			List<Action<SocketIOEvent>> l = handlers [ev];
 			if (!l.Contains(callback)) {
-				#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 				debugMethod.Invoke("[SocketIO] Couldn't remove callback action for event: " + ev);
-				#endif
+#endif
 				return;
 			}
 
@@ -238,11 +247,41 @@ namespace SocketIO
 			ackList.Add(new Ack(packetId, action));
 		}
 
-		#endregion
+#endregion
 
-		#region Private Methods
+#region Private Methods
 
-		private void RunSocketThread(object obj)
+        private void ParseCommandLineArguments()
+        {
+            string host = defaultHost;
+            int port = defaultPort;
+            string[] commandLineArgs = System.Environment.GetCommandLineArgs();
+
+            #if SOCKET_IO_DEBUG
+            debugMethod.Invoke("Parsing command line args");
+            #endif
+
+            for (int i = 0; i < commandLineArgs.Length; i++)
+            {
+                #if SOCKET_IO_DEBUG
+                debugMethod.Invoke("Cmd arg: " + commandLineArgs[i]);
+                #endif
+
+                if (commandLineArgs[i] == "--host")
+                {
+                    host = commandLineArgs[i + 1];
+                }
+
+                if (commandLineArgs[i] == "--port")
+                {
+                    Int32.TryParse(commandLineArgs[i + 1], out port);
+                }
+            }
+
+            url = String.Format("ws://{0}:{1}/socket.io/?EIO=4&transport=websocket", host, port);
+        }
+
+        private void RunSocketThread(object obj)
 		{
 			WebSocket webSocket = (WebSocket)obj;
 			while(connected){
@@ -301,16 +340,16 @@ namespace SocketIO
 
 		private void EmitPacket(Packet packet)
 		{
-			#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 			debugMethod.Invoke("[SocketIO] " + packet);
-			#endif
+#endif
 			
 			try {
 				ws.Send(encoder.Encode(packet));
 			} catch(SocketIOException ex) {
-				#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 				debugMethod.Invoke(ex.ToString());
-				#endif
+#endif
 			}
 		}
 
@@ -321,9 +360,9 @@ namespace SocketIO
 
 		private void OnMessage(object sender, MessageEventArgs e)
 		{
-			#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 			debugMethod.Invoke("[SocketIO] Raw message: " + e.Data);
-			#endif
+#endif
 			Packet packet = decoder.Decode(e);
 
 			switch (packet.enginePacketType) {
@@ -337,9 +376,9 @@ namespace SocketIO
 
 		private void HandleOpen(Packet packet)
 		{
-			#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 			debugMethod.Invoke("[SocketIO] Socket.IO sid: " + packet.json["sid"].str);
-			#endif
+#endif
 			sid = packet.json["sid"].str;
 			EmitEvent("open");
 		}
@@ -366,9 +405,9 @@ namespace SocketIO
 					return;
 				}
 
-				#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 				debugMethod.Invoke("[SocketIO] Ack received for invalid Action: " + packet.id);
-				#endif
+#endif
 			}
 
 			if (packet.socketPacketType == SocketPacketType.EVENT) {
@@ -399,9 +438,9 @@ namespace SocketIO
 				try{
 					handler(ev);
 				} catch(Exception ex){
-					#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 					debugMethod.Invoke(ex.ToString());
-					#endif
+#endif
 				}
 			}
 		}
@@ -418,6 +457,6 @@ namespace SocketIO
 			}
 		}
 
-		#endregion
+#endregion
 	}
 }
