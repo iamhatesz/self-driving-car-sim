@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/1_SelfDrivingCar/Scenes/PathPlanning.unity
     guid: 1bfde8e82f48d7c48b1fadf4fc2ad02a
-  - enabled: 1
+  - enabled: 0
     path: Assets/1_SelfDrivingCar/Scenes/LauncherScene.unity
     guid: 122bdeaec1483475b8fc97c588c07408
   - enabled: 0
