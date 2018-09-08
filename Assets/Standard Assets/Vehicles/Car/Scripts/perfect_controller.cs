@@ -110,19 +110,22 @@ public class perfect_controller : MonoBehaviour {
 	}
 		
 	public void FixedUpdate()
-	{
-		ControllerUpdate ();
-		if (simulator_process) 
-		{
-			server_process = true;
+    {
+        Debug.Log("FixedUpdate");
+        ControllerUpdate ();
+		if (simulator_process)
+        {
+            Debug.Log("FixedUpdate.simulator_process = true");
+            server_process = true;
 		}
 
 	}
 		
 	public void ControllerUpdate()
-	{
-		
-		if (x_points.Count > 1 && y_points.Count > 1) 
+    {
+        Debug.Log("ControllerUpdate");
+
+        if (x_points.Count > 1 && y_points.Count > 1) 
 		{
 			
 			
@@ -153,24 +156,28 @@ public class perfect_controller : MonoBehaviour {
 	}
 		
 	public bool isServerProcess()
-	{
-		return server_process;
+    {
+        Debug.Log("isServerProcess");
+        return server_process;
 	}
 	public void ServerPause()
 	{
+        Debug.Log("ServerPause");
 		server_process = false;
 	}
 	public void SimulatorPause()
-	{
-		simulator_process = false;
+    {
+        Debug.Log("SimulatorPause");
+        simulator_process = false;
 		//Time.timeScale = 0.0f;
 		//Time.fixedDeltaTime = 0.02f;
 
 
 	}
 	public void setSimulatorProcess()
-	{
-		simulator_process = true;
+    {
+        Debug.Log("setSimulatorProcess");
+        simulator_process = true;
 		//Time.timeScale = 1.0f;
 
 	}
@@ -248,11 +255,13 @@ public class perfect_controller : MonoBehaviour {
 
 	}
 	public void OpenScript()
-	{
-		script_running = true;
+    {
+        Debug.Log("OpenScript");
+        script_running = true;
 	}
 	public void CloseScript()
-	{
-		script_running = false;
+    {
+        Debug.Log("CloseScript");
+        script_running = false;
 	}
 }
